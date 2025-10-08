@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>All Site — User Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --accent:#0d6efd;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --radius:14px;
+      --danger:#dc2626;
+      --success:#16a34a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Poppins',sans-serif;
+      background:linear-gradient(180deg,#f7fbff,#f3f9ff);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      min-height:100vh;
+    }
+    .wrap{width:100%;max-width:960px;display:grid;grid-template-columns:1fr 420px;gap:24px}
+    @media(max-width:900px){.wrap{grid-template-columns:1fr;}}
+    .card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:0 10px 30px rgba(12,25,60,0.06)}
+    .profile-head{display:flex;gap:16px;align-items:center}
+    .avatar{width:92px;height:92px;border-radius:50%;background:linear-gradient(90deg,var(--accent),#00c2ff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:28px;overflow:hidden}
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    .name-email{display:flex;flex-direction:column}
+    h2{margin:0;font-size:20px}
+    .muted{color:var(--muted);font-size:14px}
+
+    form{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+    label{font-size:13px;color:#24304a}
+    .input{display:flex;align-items:center;border:1px solid #e6edf6;padding:10px;border-radius:10px;background:#fbfdff}
+    .input input, .input textarea{border:0;outline:none;background:transparent;width:100%;font-size:15px}
+    textarea{min-height:86px;resize:vertical;padding-top:6px}
+
+    .row{display:flex;gap:10px}
+    .row .col{flex:1}
+
+    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),#00c2ff);color:#fff}
+    .btn.ghost{background:#fff;border:1px solid #e6edf6}
+    .small{font-size:13px;color:var(--muted)}
+
+    .msg{min-height:20px;font-size:14px;color:var(--danger)}
+    .msg.success{color:var(--success)}
+
+    .file-row{display:flex;align-items:center;gap:10px}
+    .progress{height:8px;background:#eef6ff;border-radius:8px;overflow:hidden;margin-top:6px}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#00c2ff);width:0%}
+
+    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+
+    .link{color:var(--accent);text-decoration:underline;cursor:pointer;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- LEFT: profile form -->
+    <section class="card" aria-labelledby="profileTitle">
+      <div class="profile-head">
+        <div class="avatar" id="avatar">
+          <span id="avatarInitial">AS</span>
+        </div>
+        <div class="name-email">
+          <h2 id="displayName">অতিথি</h2>
+          <div class="muted" id="displayEmail">—</div>
+        </div>
+      </div>
+
+      <form id="profileForm" aria-label="Profile form">
+        <label for="inpName">পূর্ণ নাম</label>
+        <div class="input"><input id="inpName" type="text" placeholder="তোমার নাম"></div>
+
+        <label for="inpPhone">ফোন</label>
+        <div class="input"><input id="inpPhone" type="tel" placeholder="01XXXXXXXXX"></div>
+
+        <div class="row">
+          <div class="col">
+            <label for="inpDob">জন্মতারিখ</label>
+            <div class="input"><input id="inpDob" type="date"></div>
+          </div>
+          <div class="col">
+            <label for="inpAddress">শহর/ঠিকানা</label>
+            <div class="input"><input id="inpAddress" type="text" placeholder="তোমার শহর"></div>
+          </div>
+        </div>
+
+        <label for="inpBio">বায়ো (স্বল্প)</label>
+        <div class="input"><textarea id="inpBio" placeholder="নিজের সম্পর্কে সংক্ষেপে বলো..."></textarea></div>
+
+        <label>প্রোফাইল ছবি</label>
+        <div class="file-row">
+          <input id="fileInput" type="file" accept="image/*">
+          <div style="flex:1">
+            <div class="small" id="fileName">কোনো ছবি নির্বাচিত নেই</div>
+            <div class="progress" aria-hidden="true"><i id="progBar"></i></div>
+          </div>
+        </div>
+
+        <div class="msg" id="msg"></div>
+
+        <div class="actions">
+          <button type="button" class="btn ghost" id="btnLogout">লগআউট</button>
+          <button type="button" class="btn primary" id="btnSave">সেভ পরিবর্তন</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- RIGHT: quick info / links -->
+    <aside class="card" aria-labelledby="quickTitle">
+      <h3 id="quickTitle">অ্যাকাউন্ট সামারি</h3>
+      <p class="small" style="margin-top:8px">এখানে তোমার লগইন স্ট্যাটাস, ইমেইল ভেরিফিকেশন, এবং দ্রুত লিংক দেখাবে।</p>
+
+      <div style="margin-top:12px">
+        <div class="small">স্ট্যাটাস</div>
+        <div id="authStatus" style="margin-top:6px;font-weight:600">চেক করা হচ্ছে...</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <div class="small">ড্যাশবোর্ড</div>
+        <div style="margin-top:6px"><a class="link" id="gotoDashboard" href="https://sites.google.com/view/all-site-ji/home" target="_blank" rel="noreferrer">তোমার Google Sites ড্যাশবোর্ড খুলো</a></div>
+      </div>
+
+      <div style="margin-top:14px">
+        <div class="small">নিরাপত্তা</div>
+        <div style="margin-top:6px" id="emailVerified">ইমেইল ভেরিফাইড: —</div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Firebase + App Logic -->
+  <script type="module">
+    // Firebase imports (module style)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+    import {
+      getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
+
+    // ---------- Your Firebase config (you gave earlier) ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyD7U3uradoCjSlFA5HwjMeVOFQSTpvLUi0",
+      authDomain: "all-site-31c1b.firebaseapp.com",
+      projectId: "all-site-31c1b",
+      storageBucket: "all-site-31c1b.firebasestorage.app",
+      messagingSenderId: "206811154193",
+      appId: "1:206811154193:web:be885affab3c182a8d6eb0",
+      measurementId: "G-YS1RJD54TF"
+    };
+
+    // Initialize
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // Elements
+    const avatar = document.getElementById('avatar');
+    const avatarInitial = document.getElementById('avatarInitial');
+    const displayNameEl = document.getElementById('displayName');
+    const displayEmailEl = document.getElementById('displayEmail');
+
+    const inpName = document.getElementById('inpName');
+    const inpPhone = document.getElementById('inpPhone');
+    const inpDob = document.getElementById('inpDob');
+    const inpAddress = document.getElementById('inpAddress');
+    const inpBio = document.getElementById('inpBio');
+
+    const fileInput = document.getElementById('fileInput');
+    const fileNameEl = document.getElementById('fileName');
+    const progBar = document.getElementById('progBar');
+
+    const btnSave = document.getElementById('btnSave');
+    const btnLogout = document.getElementById('btnLogout');
+    const msgEl = document.getElementById('msg');
+
+    const authStatus = document.getElementById('authStatus');
+    const emailVerified = document.getElementById('emailVerified');
+
+    // utility show message
+    function showMsg(text, type='error'){
+      msgEl.classList.remove('success');
+      msgEl.style.color = (type === 'success') ? getComputedStyle(document.documentElement).getPropertyValue('--success') || '#16a34a' : getComputedStyle(document.documentElement).getPropertyValue('--danger') || '#dc2626';
+      msgEl.textContent = text;
+    }
+
+    // track selected file
+    let selectedFile = null;
+    fileInput.addEventListener('change', (e)=>{
+      const f = e.target.files[0];
+      if(!f) { fileNameEl.textContent = 'কোনো ছবি নির্বাচিত নেই'; selectedFile = null; return; }
+      if(!f.type.startsWith('image/')) { fileNameEl.textContent = 'দয়া করে একটি ইমেজ ফাইল নির্বাচন করুন'; selectedFile = null; return; }
+      selectedFile = f;
+      fileNameEl.textContent = f.name;
+    });
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if(!user){
+        // Not logged in — show message with link to login
+        authStatus.textContent = 'লগইন করা হয়নি';
+        displayNameEl.textContent = 'অতিথি';
+        displayEmailEl.textContent = 'অনুগ্রহ করে Login করুন';
+        emailVerified.textContent = 'ইমেইল: —';
+        showMsg('তোমাকে লগইন করতে হবে। লগইন পেজে যাও', 'error');
+        // If you have a login page, direct user there. Update the URL below if different.
+        // We *don't* auto-redirect here to avoid breaking embed testing — show a link
+        const loginLink = document.createElement('a');
+        loginLink.href = 'index.html'; // <-- যদি তোমার আলাদা login পেজ থাকে, ঠিক করে দিও
+        loginLink.textContent = ' লগইন পেজে যাও ';
+        loginLink.style.color = 'var(--accent)';
+        loginLink.style.textDecoration = 'underline';
+        loginLink.target = '_blank';
+        // attach only if not already present
+        if (!document.getElementById('loginLinkNote')) {
+          const note = document.createElement('div');
+          note.id = 'loginLinkNote';
+          note.style.marginTop = '8px';
+          note.appendChild(loginLink);
+          document.querySelector('.card').appendChild(note);
+        }
+        return;
+      }
+
+      // Logged in — load profile from Firestore (collection: users, doc: uid)
+      authStatus.textContent = 'লগইন করা আছে';
+      displayEmailEl.textContent = user.email || '(no email)';
+      emailVerified.textContent = 'ইমেইল ভেরিফাইড: ' + (user.emailVerified ? 'হ্যাঁ' : 'না');
+
+      // set display name if available
+      displayNameEl.textContent = user.displayName || 'ব্যবহারকারী';
+
+      // load Firestore doc
+      const userDocRef = doc(db, 'users', user.uid);
+      try {
+        const snap = await getDoc(userDocRef);
+        if (snap.exists()){
+          const data = snap.data();
+          inpName.value = data.name || user.displayName || '';
+          inpPhone.value = data.phone || '';
+          inpDob.value = data.dob || '';
+          inpAddress.value = data.address || '';
+          inpBio.value = data.bio || '';
+          if (data.photoURL){
+            setAvatarImage(data.photoURL);
+          } else if (user.photoURL){
+            setAvatarImage(user.photoURL);
+          } else {
+            setAvatarInitial(inpName.value || user.email || 'AS');
+          }
+        } else {
+          // no doc yet — populate from user
+          inpName.value = user.displayName || '';
+          setAvatarInitial(inpName.value || user.email || 'AS');
+        }
+        showMsg('প্রোফাইল ডেটা লোড হয়েছে', 'success');
+      } catch (err){
+        showMsg('ডেটা লোড করতে সমস্যা: ' + (err.message || err));
+      }
+    });
+
+    // helper: set avatar image or initials
+    function setAvatarImage(url){
+      avatar.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = 'avatar';
+      avatar.appendChild(img);
+    }
+    function setAvatarInitial(text){
+      avatar.innerHTML = '';
+      const initial = (text || 'AS').trim()[0] || 'A';
+      const span = document.createElement('span');
+      span.textContent = initial.toUpperCase();
+      span.style.fontSize = '36px';
+      avatar.appendChild(span);
+    }
+
+    // Save handler
+    btnSave.addEventListener('click', async ()=>{
+      showMsg('');
+      const user = auth.currentUser;
+      if(!user){ showMsg('প্রথমে লগইন করুন'); return; }
+
+      // gather
+      const name = inpName.value.trim();
+      const phone = inpPhone.value.trim();
+      const dob = inpDob.value || '';
+      const address = inpAddress.value.trim();
+      const bio = inpBio.value.trim();
+
+      // basic validation
+      if(!name){ showMsg('নাম প্রদান করুন'); return; }
+
+      // if there's a selected file, upload to Storage first
+      let photoURL = null;
+      if (selectedFile){
+        try {
+          const fileExt = selectedFile.name.split('.').pop();
+          const filename = `avatars/${user.uid}_${Date.now()}.${fileExt}`;
+          const sRef = storageRef(storage, filename);
+          const uploadTask = uploadBytesResumable(sRef, selectedFile);
+
+          // show progress
+          progBar.style.width = '0%';
+          await new Promise((resolve, reject) => {
+            uploadTask.on('state_changed', (snapshot) => {
+              const percent = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+              progBar.style.width = percent + '%';
+            }, (err) => { reject(err); }, async () => {
+              // success — get URL
+              const url = await getDownloadURL(uploadTask.snapshot.ref);
+              photoURL = url;
+              resolve();
+            });
+          });
+        } catch (err){
+          showMsg('ছবি আপলোডে সমস্যা: ' + (err.message || err)); return;
+        }
+      }
+
+      // build payload
+      const payload = {
+        name, phone, dob, address, bio,
+        updatedAt: serverTimestamp()
+      };
+      if (photoURL) payload.photoURL = photoURL;
+
+      // save to Firestore
+      try {
+        await setDoc(doc(db, 'users', user.uid), payload, { merge: true });
+        // update UI
+        displayNameEl.textContent = name;
+        displayEmailEl.textContent = user.email || '';
+        if (photoURL) setAvatarImage(photoURL);
+        else setAvatarInitial(name);
+
+        showMsg('প্রোফাইল সফলভাবে আপডেট হয়েছে', 'success');
+        // clear selected file
+        selectedFile = null; fileInput.value = ''; fileNameEl.textContent = 'কোনো ছবি নির্বাচিত নেই';
+        progBar.style.width = '0%';
+      } catch (err){
+        showMsg('সেভ করতে সমস্যা: ' + (err.message || err));
+      }
+    });
+
+    // Logout
+    btnLogout.addEventListener('click', async ()=>{
+      try {
+        await signOut(auth);
+        // optional: redirect to login page
+        window.location.href = 'index.html'; // <-- যদি তোমার লগইন পেজ আলাদা URL থাকে সেট করো
+      } catch (err){
+        showMsg('লগআউট ব্যর্থ: ' + (err.message || err));
+      }
+    });
+
+    // Note: if embedding in Google Sites via iframe, ensure that the hosting domain is allowed in Firebase console (Authorized domains)
+  </script>
+</body>
+</html>
